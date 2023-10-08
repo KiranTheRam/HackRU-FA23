@@ -25,6 +25,8 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
                                                client_secret=CLIENT_SECRET,
                                                redirect_uri=REDIRECT_URI,
                                                scope='user-library-read user-read-playback-state user-modify-playback-state'))
+
+
 def sensor_val():
     data = ser.read(100).split(b'\n')
     data = data[len(data) - 2]
@@ -56,23 +58,29 @@ def search_and_play_song(song_name):
             print(f"{index}\n{song.name}\n{song.artist}\n")
 
         serial_list = f"{song_list[0].name},{song_list[0].artist},{song_list[1].name},{song_list[1].artist},{song_list[2].name},{song_list[2].artist},{song_list[3].name},{song_list[3].artist},{song_list[4].name},{song_list[4].artist},{song_list[5].name},{song_list[5].artist}"
-        # TODO: Send this to serial
 
-        song_number = 0
-        # while True:
-        #     if ser.inWaiting() > 0:
-        #         song_number = sensor_val()
-        #         break
+        # TODO: Send serial_list to serial device
+
+        # Get the selected number from serial device. Start with an
+        song_number = None
+
+        while True:
+            if ser.inWaiting() > 0:
+                song_number = sensor_val()
+            break
 
         # song_number = input("Enter the number of the song you want: ")
 
         try:
             selected_song = song_list[song_number]
 
-            print(f"Found '{selected_song.name}'. Playing on '{DEVICE_NAME}'...")
+            print(f"Found '{selected_song.name}'. Trying playback on '{DEVICE_NAME}'...")
 
             # Get a list of available devices
             devices = sp.devices()
+
+            # TODO: Remove after selecting proper device
+            print(devices)
 
             for device in devices['devices']:
                 if device['name'] == DEVICE_NAME:
@@ -85,7 +93,6 @@ def search_and_play_song(song_name):
             print("Invalid input or song number not found.")
     else:
         print(f"'{song_name}' not found on Spotify.")
-
 
 # if __name__ == "__main__":
 #     search_and_play_song()
